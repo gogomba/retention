@@ -1,0 +1,19 @@
+# Explorative Data Analysis
+***
+```{r}
+# data 
+dataPath = file.path(dataDir, "pass.csv")
+pass = read.csv(dataPath)
+
+# show 
+DT::datatable(
+  pass,
+  rownames = F,
+  fillContainer = T,
+  options = list(
+    pageLength = 10,
+    scrollX = TRUE,
+    scrollY = TRUE
+  )
+) 
+```

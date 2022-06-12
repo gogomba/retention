@@ -6,7 +6,7 @@ bookdown::gitbook:
         <li><a href="./">Season Pass Sales</a></li>
       after: |
         <li><a href="https://github.com/gogomba/retention" target="blank">GitHub</a></li>
-    edit: https://github.com/gogomba/microvan/%s
+    edit: https://github.com/gogomba/pass/%s
     download: ["pdf", "epub"]
 bookdown::pdf_book:
   includes:

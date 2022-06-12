@@ -1,6 +1,9 @@
 .Rproj.user
 .Rhistory
 .RData
+.Rprofile
+.Rhistory
 .Ruserdata
+**renv/**
 **data/**
 *.csv
