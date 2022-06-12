@@ -1,0 +1,145 @@
+--- 
+title: "Season Pass Sales"
+author: ""
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: [book.bib, packages.bib]
+# cover-image: path to the social sharing image like images/cover.jpg
+description: ""
+link-citations: yes
+github-repo: gogomba/retention
+output:
+  bookdown::gitbook:
+    includes:
+      in_header: header.html
+---
+
+# Executive Summary{-}
+***
+In this example we shall use logistic regression to assess the impact of bundling on the customers propensity to purchase, adapting the discussion from Chapman and McDonnell Feit (2019). The data available are sales of season tickets to an amusement park. The data consist of season ticket pass sales (with values of 1 or 0), on the basis of two factors: the channel used to extend the offer (email, postal mail, or in-person at the park) and whether it was promoted in a bundle offering the season ticket with another feature such as free parking, or not.
+
+We shall use logistic regression to answer the following marketing question: are customers more likely to purchase the season pass when it is offered in the bundle (with free parking), or not?
+
+
+```{r setup, include=FALSE}
+# Add a common class name for every chunks
+knitr::opts_chunk$set(
+  echo = TRUE)
+```
+```{r, message=FALSE, warning=FALSE}
+# multivariate analysis and basic descriptive statistics
+library(psych)  
+
+# data processing
+library(dplyr)
+library(tidyverse)
+library(data.table)
+library(DT)
+
+
+# plot
+library(ggplot2)
+library(corrplot)
+library(ggthemes)
+library(ggridges)
+
+# rMarkdown 
+library(rmarkdown)
+library(kableExtra)
+
+# file path management 
+library(here)
+
+# stat
+library(factoextra)
+```
+
+```{r, include=FALSE}
+# set working directory 
+# file path
+mainDir = here::here("~/Documents/github/Course/Module2/Customer_Analytics/CA9/Application/pass-sales")
+dataDir = file.path(mainDir,"data")
+plotDir = file.path(mainDir,"plot")
+reportDir = file.path(mainDir, "report")
+jsDir =file.path(mainDir,"js")
+
+function.dir = base::file.path(mainDir, 'src', 'R')
+function.file = base::list.files(function.dir, pattern='*.[r|R]')
+base::invisible(base::sapply(base::file.path(function.dir, function.file), base::source))
+
+
+```
+
+```{r htmlTemp, echo=FALSE, eval=T, message=F}
+codejs <- readr::read_lines(file.path(jsDir,"codefolding.js"))
+collapsejs <- readr::read_lines(file.path(jsDir,"collapse.js"))
+transitionjs <- readr::read_lines(file.path(jsDir,"transition.js"))
+dropdownjs <- readr::read_lines(file.path(jsDir,"dropdown.js"))
+
+htmlhead <- c(
+  paste('
+<script>',
+paste(transitionjs, collapse = "\n"),
+'</script>
+<script>',
+paste(collapsejs, collapse = "\n"),
+'</script>
+<script>',
+paste(codejs, collapse = "\n"),
+'</script>
+<script>',
+paste(dropdownjs, collapse = "\n"),
+'</script>
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+.row { display: flex; }
+.collapse { display: none; }
+.in { display:block }
+.pull-right > .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+.open > .dropdown-menu {
+    display: block;
+}
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "hide");
+});
+</script>
+', sep = "\n"),
+  paste0('
+<script>
+document.write(\'<div class="btn-group pull-right" style="position: absolute; top: 20%; right: 2%; z-index: 200"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-_extension-text-contrast=""><span>Code</span> <span class="caret"></span></button><ul class="dropdown-menu" style="min-width: 50px;"><li><a id="rmd-show-all-code" href="#">Show All Code</a></li><li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li></ul></div>\')
+</script>
+')
+)
+
+readr::write_lines(htmlhead, path = file.path(mainDir,"header.html"))
+```
+
+
